@@ -2,8 +2,21 @@ package main
 
 import (
 	"github.com/faiface/beep"
+	"github.com/faiface/beep/generators"
 	"time"
 )
+
+func Chord(sr beep.SampleRate, freqs ...int) beep.Streamer {
+	var mix beep.Mixer
+	for _, f := range freqs {
+		s, err := generators.SinTone(sr, f)
+		if err != nil {
+			return nil
+		}
+		mix.Add(s)
+	}
+	return &mix
+}
 
 type Beat struct {
 	streamer beep.Streamer
@@ -37,8 +50,9 @@ func NewRhythm(f beep.Format, cycleLength time.Duration) (rhythm *Rhythm) {
 
 func (r *Rhythm) AddBeat(b Beat, t float64) {
 	var ind int = (int)(float64(r.cycleLength) * t)
-	r.Beats[ind] = b.Streamer(r.format, r.cycleLength)
-	r.streamer = beep.Mix(r.streamer, r.Beats[ind])
+	streamer := b.Streamer(r.format, r.cycleLength)
+	r.Beats[ind] = streamer
+	r.streamer = beep.Mix(r.streamer, streamer)
 }
 
 func (r *Rhythm) Stream(samples [][2]float64) (n int, ok bool) {

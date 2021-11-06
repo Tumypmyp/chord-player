@@ -4,22 +4,9 @@ import (
 	"fmt"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/effects"
-	"github.com/faiface/beep/generators"
 	"github.com/faiface/beep/speaker"
 	"time"
 )
-
-func Chord(sr beep.SampleRate, freqs ...int) beep.Streamer {
-	var mix beep.Mixer
-	for _, f := range freqs {
-		s, err := generators.SinTone(sr, f)
-		if err != nil {
-			fmt.Println(err, ", can not add frequency", f)
-		}
-		mix.Add(s)
-	}
-	return &mix
-}
 
 func main() {
 	format := beep.Format{
@@ -35,7 +22,7 @@ func main() {
 
 	//beat := NewBeat(format, chord, 5000)
 
-	rhythmStreamer := NewRhythm(format, time.Second*2)
+	rhythmStreamer := NewRhythm(format, time.Second*1)
 
 	rhythmStreamer.AddBeat(Beat{
 		streamer: chord,
@@ -49,7 +36,7 @@ func main() {
 	v := &effects.Volume{
 		Streamer: rhythmStreamer,
 		Base:     2,
-		Volume:   -7,
+		Volume:   -8,
 		Silent:   false,
 	}
 	speaker.Play(v)
@@ -63,9 +50,9 @@ func main() {
 		for i := 0; i < n; i++ {
 			fmt.Scan(&notes[i])
 		}
-
+		chord := Chord(sr, notes...)
 		beat := Beat{
-			streamer: Chord(sr, notes...),
+			streamer: chord,
 			length:   0.125,
 		}
 
