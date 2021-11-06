@@ -37,7 +37,7 @@ func main() {
 	rhythmStreamer := NewRhythm(72000)
 
 	rhythmStreamer.AddBeat(beat, 0)
-	rhythmStreamer.AddBeat(beat, 12000)
+	rhythmStreamer.AddBeat(beat, 0.2)
 
 	v := &effects.Volume{
 		Streamer: rhythmStreamer,
@@ -48,8 +48,9 @@ func main() {
 	speaker.Play(v)
 
 	for {
-		fmt.Println("Print n - number of notes, time beetween 0 and 72000,\n\tthen n frequencies.")
-		var n, t int
+		fmt.Println("Print n - number of notes, float time in a cycle beetween 0 and 1,\n\tthen n frequencies.")
+		var n int
+		var t float32
 		fmt.Scan(&n, &t)
 		notes := make([]int, n)
 		for i := 0; i < n; i++ {

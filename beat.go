@@ -20,7 +20,6 @@ func (b *Beat) Streamer() (beatStreamer beep.StreamSeeker) {
 	return beatStreamer
 }
 
-
 type Rhythm struct {
 	played      int
 	CycleLength int
@@ -37,21 +36,21 @@ func NewRhythm(cycleLength int) (rhythm *Rhythm) {
 	return rhythm
 }
 
-func (r *Rhythm) AddBeat(b Beat, t int) {
-	r.Beats[t] = b
+func (r *Rhythm) AddBeat(b Beat, t float32) {
+	var ind int = (int)(float32(r.CycleLength) * t)
+	r.Beats[ind] = b
 }
 
 func (r *Rhythm) Stream(samples [][2]float64) (n int, ok bool) {
 	for i := 0; i < len(samples); i++ {
 		if b, ok := r.Beats[r.played%r.CycleLength]; ok {
-			r.streamer.Stream(samples[:i])
-			samples = samples[i:]
-
+			r.streamer.Stream(samples[n:i])
+			n = i
 			r.streamer.Add(b.Streamer())
 		}
 		r.played++
 	}
-	r.streamer.Stream(samples)
+	r.streamer.Stream(samples[n:])
 	return len(samples), true
 }
 
