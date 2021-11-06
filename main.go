@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/generators"
 	"github.com/faiface/beep/speaker"
+	"time"
 )
 
 func Chord(sr beep.SampleRate, freqs ...int) beep.Streamer {
@@ -32,12 +33,18 @@ func main() {
 
 	chord := Chord(sr, 1200, 1000, 800)
 
-	beat := NewBeat(format, chord, 5000)
+	//beat := NewBeat(format, chord, 5000)
 
-	rhythmStreamer := NewRhythm(72000)
+	rhythmStreamer := NewRhythm(format, time.Second*2)
 
-	rhythmStreamer.AddBeat(beat, 0)
-	rhythmStreamer.AddBeat(beat, 0.2)
+	rhythmStreamer.AddBeat(Beat{
+		streamer: chord,
+		length:   0.125,
+	}, 0)
+	rhythmStreamer.AddBeat(Beat{
+		streamer: chord,
+		length:   0.250,
+	}, 0.5)
 
 	v := &effects.Volume{
 		Streamer: rhythmStreamer,
@@ -50,14 +57,18 @@ func main() {
 	for {
 		fmt.Println("Print n - number of notes, float time in a cycle beetween 0 and 1,\n\tthen n frequencies.")
 		var n int
-		var t float32
+		var t float64
 		fmt.Scan(&n, &t)
 		notes := make([]int, n)
 		for i := 0; i < n; i++ {
 			fmt.Scan(&notes[i])
 		}
 
-		beat := NewBeat(format, Chord(sr, notes...), 5000)
+		beat := Beat{
+			streamer: Chord(sr, notes...),
+			length:   0.125,
+		}
+
 		rhythmStreamer.AddBeat(beat, t)
 		fmt.Println(rhythmStreamer)
 	}
